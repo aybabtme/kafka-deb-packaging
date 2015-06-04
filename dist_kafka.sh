@@ -4,11 +4,11 @@
 
 set -e
 set -u
-app_user=app
+app_user=kafka
 name=kafka
 version=0.8.2.1
 scala_version=2.10
-package_version="-10"
+package_version="-11"
 description="Apache Kafka is a distributed publish-subscribe messaging system."
 url="https://kafka.apache.org/"
 arch="all"
@@ -29,25 +29,17 @@ mkdir -p kafka
 cd kafka
 mkdir -p build/usr/lib/kafka
 mkdir -p build/usr/lib/kafka/logs
-mkdir -p build/etc/default
 mkdir -p build/etc/init
-mkdir -p build/etc/init.d
 mkdir -p build/etc/kafka
 mkdir -p build/var/log/kafka
-#mkdir -p build/var/run/kafka
 
-cp ${origdir}/kafka-broker.default build/etc/default/kafka-broker
 cp ${origdir}/kafka-broker.upstart.conf build/etc/init/kafka-broker.conf
-cp ${origdir}/kafka-broker.init.d build/etc/init.d/kafka
-cp ${origdir}/zookeeper.init.d build/etc/init.d/zookeeper
 
 # Updated to use the Binary package
 rm -rf kafka_${scala_version}-${version}
 tar zxf ${origdir}/${bin_package}
 cd kafka_${scala_version}-${version}
-# mv config/log4j.properties config/server.properties ../build/etc/kafka
 cp config/server.properties ../build/etc/kafka
-cp config/zookeeper.properties ../build/etc/kafka/zookeeper.properties
 mv * ../build/usr/lib/kafka
 cd ../build
 
@@ -61,7 +53,7 @@ fpm -t deb \
     --category ${section} \
     --vendor "" \
     --license "${license}" \
-    -m "${USER}@localhost" \
+    -m "${USER}@`hostname`" \
     --prefix=/ \
     -s dir \
     -- .
